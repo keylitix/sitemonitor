@@ -1,0 +1,18 @@
+{
+  "sites": [
+    {
+      "id": "example-1",
+      "name": "Example Site",
+      "url": "https://example.com",
+      "threshold": 0.05
+    }
+  ],
+  "defaults": {
+    "threshold": 0.05,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "waitAfterLoad": 2000
+  }
+}

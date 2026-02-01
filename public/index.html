@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Visual Monitor</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+      color: #24292e;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+    
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #059669;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+    
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .summary-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    .summary-card .count {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    
+    .summary-card .label {
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-top: 5px;
+    }
+    
+    .count.ok { color: #10b981; }
+    .count.changed { color: #f59e0b; }
+    .count.error { color: #ef4444; }
+    .count.new { color: #3b82f6; }
+    
+    .sites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 20px;
+    }
+    
+    .site-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .site-header {
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .site-name {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    
+    .site-url {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+    
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-ok { background: #d1fae5; color: #065f46; }
+    .status-changed { background: #fef3c7; color: #92400e; }
+    .status-error { background: #fee2e2; color: #991b1b; }
+    .status-new { background: #dbeafe; color: #1e40af; }
+    .status-checking { background: #e5e7eb; color: #374151; }
+    
+    .site-body {
+      padding: 15px 20px;
+    }
+    
+    .site-meta {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      font-size: 0.875rem;
+      margin-bottom: 15px;
+    }
+    
+    .meta-item {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .meta-label {
+      color: #6b7280;
+    }
+    
+    .meta-value {
+      font-weight: 500;
+    }
+    
+    .site-reason {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-bottom: 15px;
+    }
+    
+    .site-reason.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .screenshots {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    
+    .screenshot {
+      text-align: center;
+    }
+    
+    .screenshot img {
+      width: 100%;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .screenshot img:hover {
+      transform: scale(1.02);
+    }
+    
+    .screenshot-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+    
+    .site-actions {
+      padding: 15px 20px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #6b7280;
+    }
+    
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e5e7eb;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .empty-state h2 {
+      color: #374151;
+      margin-bottom: 10px;
+    }
+    
+    .empty-state p {
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+    
+    .config-section {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .config-section.active {
+      display: block;
+    }
+    
+    .config-section h2 {
+      margin-bottom: 15px;
+    }
+    
+    .config-section textarea {
+      width: 100%;
+      height: 400px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 13px;
+      padding: 15px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      resize: vertical;
+    }
+    
+    .config-actions {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      background: #1f2937;
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>🖥️ Site Visual Monitor</h1>
+      </div>
+      <div class="header-actions">
+        <button class="btn-secondary" onclick="toggleConfig()">⚙️ Configure Sites</button>
+        <button class="btn-primary" onclick="runCheck()" id="checkBtn">🔄 Run Check Now</button>
+      </div>
+    </header>
+    
+    <div class="config-section" id="configSection">
+      <h2>Site Configuration</h2>
+      <p style="color: #6b7280; margin-bottom: 15px;">Edit the JSON below to add or modify sites to monitor.</p>
+      <textarea id="configEditor"></textarea>
+      <div class="config-actions">
+        <button class="btn-primary" onclick="saveConfig()">Save Configuration</button>
+        <button class="btn-secondary" onclick="toggleConfig()">Cancel</button>
+      </div>
+    </div>
+    
+    <div class="summary" id="summary">
+      <div class="summary-card">
+        <div class="count" id="totalCount">-</div>
+        <div class="label">Total Sites</div>
+      </div>
+      <div class="summary-card">
+        <div class="count ok" id="okCount">-</div>
+        <div class="label">All Good</div>
+      </div>
+      <div class="summary-card">
+        <div class="count changed" id="changedCount">-</div>
+        <div class="label">Changed</div>
+      </div>
+      <div class="summary-card">
+        <div class="count error" id="errorCount">-</div>
+        <div class="label">Errors</div>
+      </div>
+    </div>
+    
+    <div id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px;">Loading sites...</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal" id="imageModal" onclick="closeModal()">
+    <span class="modal-close">&times;</span>
+    <img id="modalImage" src="" alt="Screenshot">
+  </div>
+  
+  <div class="toast" id="toast"></div>
+  
+  <script>
+    let sites = [];
+    
+    async function loadSites() {
+      try {
+        const response = await fetch('/api/sites');
+        sites = await response.json();
+        renderSites();
+        updateSummary();
+      } catch (error) {
+        document.getElementById('content').innerHTML = `
+          <div class="empty-state">
+            <h2>Error Loading Sites</h2>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+    
+    function updateSummary() {
+      document.getElementById('totalCount').textContent = sites.length;
+      document.getElementById('okCount').textContent = sites.filter(s => s.status === 'ok').length;
+      document.getElementById('changedCount').textContent = sites.filter(s => s.status === 'changed').length;
+      document.getElementById('errorCount').textContent = sites.filter(s => s.status === 'error').length;
+    }
+    
+    function renderSites() {
+      if (sites.length === 0) {
+        document.getElementById('content').innerHTML = `
+          <div class="empty-state">
+            <h2>No Sites Configured</h2>
+            <p>Click "Configure Sites" to add your first site to monitor.</p>
+            <button class="btn-primary" onclick="toggleConfig()">Configure Sites</button>
+          </div>
+        `;
+        return;
+      }
+      
+      // Sort: changed/error first, then by name
+      const sorted = [...sites].sort((a, b) => {
+        const priority = { error: 0, changed: 1, new: 2, ok: 3 };
+        const pa = priority[a.status] ?? 4;
+        const pb = priority[b.status] ?? 4;
+        if (pa !== pb) return pa - pb;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+      
+      document.getElementById('content').innerHTML = `
+        <div class="sites-grid">
+          ${sorted.map(site => renderSiteCard(site)).join('')}
+        </div>
+      `;
+    }
+    
+    function renderSiteCard(site) {
+      const status = site.status || 'new';
+      const hasScreenshots = site.currentScreenshot || site.baselineScreenshot;
+      
+      return `
+        <div class="site-card">
+          <div class="site-header">
+            <div>
+              <div class="site-name">${escapeHtml(site.name)}</div>
+              <div class="site-url">${escapeHtml(site.url)}</div>
+            </div>
+            <span class="status-badge status-${status}">${status}</span>
+          </div>
+          
+          <div class="site-body">
+            <div class="site-meta">
+              <div class="meta-item">
+                <span class="meta-label">Last Check</span>
+                <span class="meta-value">${site.lastCheck ? formatTime(site.lastCheck) : 'Never'}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Load Time</span>
+                <span class="meta-value">${site.loadTime ? site.loadTime + 'ms' : '-'}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">HTTP Status</span>
+                <span class="meta-value">${site.statusCode || '-'}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Difference</span>
+                <span class="meta-value">${site.diffPercent !== undefined ? (site.diffPercent * 100).toFixed(1) + '%' : '-'}</span>
+              </div>
+            </div>
+            
+            ${site.reason && status !== 'ok' ? `
+              <div class="site-reason ${status === 'error' ? 'error' : ''}">
+                ${escapeHtml(site.reason)}
+              </div>
+            ` : ''}
+            
+            ${hasScreenshots ? `
+              <div class="screenshots">
+                ${site.baselineScreenshot ? `
+                  <div class="screenshot">
+                    <img src="${site.baselineScreenshot}" alt="Baseline" onclick="showImage('${site.baselineScreenshot}')">
+                    <div class="screenshot-label">Baseline</div>
+                  </div>
+                ` : ''}
+                ${site.currentScreenshot ? `
+                  <div class="screenshot">
+                    <img src="${site.currentScreenshot}" alt="Current" onclick="showImage('${site.currentScreenshot}')">
+                    <div class="screenshot-label">Current</div>
+                  </div>
+                ` : ''}
+              </div>
+              ${site.diffScreenshot ? `
+                <div style="margin-top: 10px;">
+                  <div class="screenshot">
+                    <img src="${site.diffScreenshot}" alt="Diff" onclick="showImage('${site.diffScreenshot}')" style="max-width: 50%;">
+                    <div class="screenshot-label">Difference Overlay (pink = changed pixels)</div>
+                  </div>
+                </div>
+              ` : ''}
+            ` : ''}
+          </div>
+          
+          <div class="site-actions">
+            <button class="btn-secondary btn-small" onclick="checkSite('${site.id}')">Check Now</button>
+            ${status === 'changed' ? `
+              <button class="btn-success btn-small" onclick="approveBaseline('${site.id}')">✓ Approve as New Baseline</button>
+            ` : ''}
+            <a href="${site.url}" target="_blank" class="btn-secondary btn-small" style="text-decoration: none;">Visit Site ↗</a>
+          </div>
+        </div>
+      `;
+    }
+    
+    async function runCheck() {
+      const btn = document.getElementById('checkBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Running...';
+      
+      try {
+        await fetch('/api/check', { method: 'POST' });
+        showToast('Check started! This may take a few minutes.');
+        
+        // Poll for updates
+        setTimeout(pollUpdates, 5000);
+      } catch (error) {
+        showToast('Error starting check: ' + error.message);
+      }
+      
+      btn.disabled = false;
+      btn.textContent = '🔄 Run Check Now';
+    }
+    
+    async function pollUpdates() {
+      await loadSites();
+      // Continue polling if any site is still checking
+      if (sites.some(s => s.status === 'checking')) {
+        setTimeout(pollUpdates, 3000);
+      }
+    }
+    
+    async function checkSite(siteId) {
+      showToast('Checking site...');
+      try {
+        await fetch(`/api/check/${siteId}`, { method: 'POST' });
+        await loadSites();
+        showToast('Check complete!');
+      } catch (error) {
+        showToast('Error: ' + error.message);
+      }
+    }
+    
+    async function approveBaseline(siteId) {
+      if (!confirm('Set the current screenshot as the new baseline?')) return;
+      
+      try {
+        await fetch(`/api/approve/${siteId}`, { method: 'POST' });
+        await loadSites();
+        showToast('Baseline updated!');
+      } catch (error) {
+        showToast('Error: ' + error.message);
+      }
+    }
+    
+    async function toggleConfig() {
+      const section = document.getElementById('configSection');
+      if (section.classList.contains('active')) {
+        section.classList.remove('active');
+      } else {
+        // Load current config
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        document.getElementById('configEditor').value = JSON.stringify(config, null, 2);
+        section.classList.add('active');
+      }
+    }
+    
+    async function saveConfig() {
+      try {
+        const config = JSON.parse(document.getElementById('configEditor').value);
+        await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+        showToast('Configuration saved!');
+        toggleConfig();
+        await loadSites();
+      } catch (error) {
+        showToast('Error: ' + error.message);
+      }
+    }
+    
+    function showImage(url) {
+      document.getElementById('modalImage').src = url;
+      document.getElementById('imageModal').classList.add('active');
+    }
+    
+    function closeModal() {
+      document.getElementById('imageModal').classList.remove('active');
+    }
+    
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    function formatTime(iso) {
+      const date = new Date(iso);
+      return date.toLocaleString();
+    }
+    
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    // Keyboard shortcut to close modal
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+    
+    // Initial load
+    loadSites();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(loadSites, 30000);
+  </script>
+</body>
+</html>
