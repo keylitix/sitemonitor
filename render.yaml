@@ -4,11 +4,13 @@ services:
     name: site-visual-monitor
     runtime: node
     plan: free
-    buildCommand: npm install && npx playwright install chromium --with-deps
+    buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "false"
       - key: CHECK_SCHEDULE
         value: "0 */6 * * *"
       - key: CLOUDINARY_CLOUD_NAME
