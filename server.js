@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs').promises;
 const cron = require('node-cron');
-const { checkAllSites, getSiteStatus, approveBaseline, initializeStorage } = require('./lib/monitor');
+const { checkAllSites, getSiteStatus, approveBaseline, initializeStorage, checkSingleSite } = require('./lib/monitor');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,7 +39,6 @@ app.post('/api/check', async (req, res) => {
 // API: Check single site
 app.post('/api/check/:siteId', async (req, res) => {
   try {
-    const { checkSingleSite } = require('./lib/monitor');
     const result = await checkSingleSite(req.params.siteId);
     res.json(result);
   } catch (error) {

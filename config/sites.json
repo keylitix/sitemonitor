@@ -1,7 +1,7 @@
 {
   "sites": [
     {
-      "id": "example-1",
+      "id": "example",
       "name": "Example Site",
       "url": "https://example.com",
       "threshold": 0.05
@@ -13,6 +13,6 @@
       "width": 1280,
       "height": 720
     },
-    "waitAfterLoad": 2000
+    "delay": 2
   }
 }
